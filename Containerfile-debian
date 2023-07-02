@@ -1,0 +1,30 @@
+FROM debian:bookworm-slim
+
+LABEL org.opencontainers.image.title="Headscale (systemd)" \
+      org.opencontainers.image.description="Headscale network management server" \
+      org.opencontainers.image.authors="Gerard Braad"
+
+RUN apt-get update \
+    && apt-get install -y \
+        ca-certificates \
+        iptables \
+        iproute2 \
+        procps \
+        inotify-tools \
+        systemd \
+        systemd-sysv \  
+        sudo \
+        curl \
+    && curl -fsSL https://github.com/juanfont/headscale/releases/download/v0.22.3/headscale_0.22.3_linux_amd64.deb -o /tmp/headscale.deb \
+    && apt install -y \
+        /tmp/headscale.deb \
+    && rm -f /tmp/headscale.deb \
+    && export SUDO_FORCE_REMOVE=yes \
+    && apt-get remove -y \
+        sudo \
+        curl \
+    && apt -y autoremove \
+    && rm -rf /var/lib/apt/lists/* \
+    && systemctl enable headscale
+
+ENTRYPOINT ["/sbin/init"]

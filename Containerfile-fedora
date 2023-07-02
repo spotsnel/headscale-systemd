@@ -1,0 +1,15 @@
+FROM registry.fedoraproject.org/fedora:latest
+
+# install headscale
+RUN dnf install -y \
+        dnf-plugins-core \
+        systemd \
+    && dnf copr enable -y \
+	    jonathanspw/headscale \
+    && dnf install -y \
+        headscale \
+    && dnf clean all \
+    && rm -rf /var/cache/yum \
+    && systemctl enable headscale
+
+ENTRYPOINT ["/sbin/init"]
